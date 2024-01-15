@@ -1,4 +1,5 @@
 from RPA.Browser.Selenium import Selenium
+from SeleniumLibrary.errors import ElementNotFound
 from RPA.HTTP import HTTP
 from selenium.common.exceptions import *
 from functions import RPADataProcessor
@@ -31,10 +32,10 @@ class RPADataExtractorApp:
         self.apply_filters()
         self.extract_data()
         self.save_data_in_spreadsheet()
-        self.close_browser()
+        #self.close_browser()
 
     def setup_browser(self):
-        self.browser.open_available_browser("nytimes.com", maximized=True)
+        self.browser.open_available_browser("https://www.nytimes.com", maximized=True)
         
         #setting config.ini file values to local variables
         self.phrase = self.config.get('Settings', 'phrase')
@@ -70,24 +71,32 @@ class RPADataExtractorApp:
         self.browser.press_keys('class:css-v7it2b', 'ARROW_DOWN') #selects 'sort by newest'
 
         #waiting for the filters...
-        time.sleep(2)
+        time.sleep(4)
 
     def extract_data(self):
         self.descriptions = []
+        self.pictures = []
         self.dates = self.browser.find_elements('class:css-17ubb9w') #search for dates
-        self.news_list = self.browser.find_elements('class:css-e1lvw9') #search for the elements containing news
+        self.news_list = self.browser.find_elements('class:css-1i8vfl5') #search for the elements containing news
+        self.titles = self.browser.find_elements('//h4[@class="css-2fgx4k"]')
         
         for news in self.news_list:
+            #tries to locate an description web element inside every news
             try:
-                #tries to locate an description web element inside every news
                 self.description = self.browser.get_webelement('class:css-16nhkrn', parent=news)
                 self.descriptions.append(self.description)
-            except Exception as e:
+            except ElementNotFound as e:
                 #if the news does not contain a description, append an empty string to the list
                 self.descriptions.append("")
+                
+            #do the same for pictures
+            try:
+                self.picture = self.browser.get_webelement('class:css-rq4mmj', parent=news)
+                self.pictures.append(self.picture)
+            except ElementNotFound as e:
+                self.pictures.append("") 
+        
             
-        self.titles = self.browser.find_elements('//h4[@class="css-2fgx4k"]')
-        self.pictures = self.browser.find_elements('class:css-rq4mmj')
     
     def save_data_in_spreadsheet(self):
         #for every title found in news, count the phrases in title, verify if there is any amount of money and add those data to the .xlsx file
@@ -102,20 +111,20 @@ class RPADataExtractorApp:
             self.data_processor.add_data_to_worksheet('B%s' % str(title+2), self.dates[title].text)
             
             #gets every picture full address, downloads it, adds to a list, and formats it to get only the filename, then adds it to the spreadsheet     
-            filename = str(self.browser.get_element_attribute(self.pictures[title], "src"))
-            self.http.download(filename, self.data_processor.pictures_path)
-            self.data_processor.pictures_list.append(filename)
-            picture_name = self.data_processor.format_pictures_filename(self.data_processor.pictures_list)
-            self.data_processor.add_data_to_worksheet('D%s' % str(title+2), picture_name)    
-    
+            if self.pictures[title] != "":
+                filename = str(self.browser.get_element_attribute(self.pictures[title], "src"))
+                self.http.download(filename, self.data_processor.pictures_path)
+                self.data_processor.pictures_list.append(filename)
+                picture_name = self.data_processor.format_pictures_filename(self.data_processor.pictures_list)
+                self.data_processor.add_data_to_worksheet('D%s' % str(title+2), picture_name)  
+        
             
         #for every description found in news, if the description contains any text, count the phrases in description, verify if there is any amount of money and add those data to the .xlsx file
-        for description in range(len(self.descriptions)):
-            if self.descriptions[description] != "":
-                self.count_in_description += self.data_processor.count_search_phrases(self.phrase, self.descriptions[description].text)
-                bool_money_in_title = self.data_processor.verify_money_in_text(self.descriptions[description].text)
-                self.data_processor.add_data_to_worksheet('C%s' % str(description+2), self.descriptions[description].text)
-                self.data_processor.add_data_to_worksheet('F%s' % str(description+2), str(self.count_in_description))
+            if self.descriptions[title] != "":
+                self.count_in_description += self.data_processor.count_search_phrases(self.phrase, self.descriptions[title].text)
+                bool_money_in_title = self.data_processor.verify_money_in_text(self.descriptions[title].text)
+                self.data_processor.add_data_to_worksheet('C%s' % str(title+2), self.descriptions[title].text)
+                self.data_processor.add_data_to_worksheet('F%s' % str(title+2), str(self.count_in_description))  
         
         
     
