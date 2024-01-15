@@ -98,9 +98,16 @@ class RPADataExtractorApp:
             self.data_processor.add_data_to_worksheet('E%s' % str(title+2), str(self.count_in_title))
             self.data_processor.add_data_to_worksheet('G%s' % str(title+2), str(bool_money_in_title))
         
-        #adding news dates to spreadsheet
-        for date in range(len(self.dates)):
-            self.data_processor.add_data_to_worksheet('B%s' % str(date+2), self.dates[date].text)
+            #adding news dates to spreadsheet
+            self.data_processor.add_data_to_worksheet('B%s' % str(title+2), self.dates[title].text)
+            
+            #gets every picture full address, downloads it, adds to a list, and formats it to get only the filename, then adds it to the spreadsheet     
+            filename = str(self.browser.get_element_attribute(self.pictures[title], "src"))
+            self.http.download(filename, self.data_processor.pictures_path)
+            self.data_processor.pictures_list.append(filename)
+            picture_name = self.data_processor.format_pictures_filename(self.data_processor.pictures_list)
+            self.data_processor.add_data_to_worksheet('D%s' % str(title+2), picture_name)    
+    
             
         #for every description found in news, if the description contains any text, count the phrases in description, verify if there is any amount of money and add those data to the .xlsx file
         for description in range(len(self.descriptions)):
@@ -110,14 +117,7 @@ class RPADataExtractorApp:
                 self.data_processor.add_data_to_worksheet('C%s' % str(description+2), self.descriptions[description].text)
                 self.data_processor.add_data_to_worksheet('F%s' % str(description+2), str(self.count_in_description))
         
-        #gets every picture full address, downloads it, adds to a list, and formats it to get only the filename, then adds it to the spreadsheet     
-        for picture in range(len(self.pictures)):
-            filename = str(self.browser.get_element_attribute(self.pictures[picture], "src"))
-            self.http.download(filename, self.data_processor.pictures_path)
-            self.data_processor.pictures_list.append(filename)
-            picture_name = self.data_processor.format_pictures_filename(self.data_processor.pictures_list)
-            self.data_processor.add_data_to_worksheet('D%s' % str(picture+2), picture_name)    
-    
+        
     
     def close_browser(self):
         self.browser.close_browser()
