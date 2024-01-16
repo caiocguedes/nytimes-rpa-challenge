@@ -3,7 +3,7 @@ from RPA.Browser.Selenium import Selenium
 from SeleniumLibrary.errors import ElementNotFound
 from RPA.HTTP import HTTP
 from selenium.common.exceptions import *
-from functions import RPADataProcessor
+from rpa_data_processor import RPADataProcessor
 import time
 import configparser
 

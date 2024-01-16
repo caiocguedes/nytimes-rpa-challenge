@@ -1,6 +1,6 @@
 from robocorp.tasks import task
 from robocorp import browser
-from main import RPADataExtractorApp
+from rpa_data_extractor import RPADataExtractorApp
 
 @task
 def rpaDataExtractor():
