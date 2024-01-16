@@ -2,7 +2,6 @@ from openpyxl import Workbook
 import re
 import os
 
-
 class RPADataProcessor:
     def __init__(self):
        self.pictures_list = []
