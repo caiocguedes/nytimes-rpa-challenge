@@ -12,7 +12,7 @@ class RPADataProcessor:
        self.fs = FileSystem()
        self.output_folder = os.path.join(os.getcwd(), "output")
        self.worksheet_filepath = os.path.join(self.output_folder, "rpa-challenge.xlsx")
-       self.pictures_path = os.path.join(self.output_folder)
+       self.pictures_path = self.output_folder
 
     #creates worksheet
     def create_worksheet(self):
