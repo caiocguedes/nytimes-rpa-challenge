@@ -20,6 +20,6 @@ The main steps:
     - date
     - description (if available, there are some news without description)
     - True or False, depending on whether the title or description contains any amount of money (Possible formats: $11.1 | $111,111.11 | 11 dollars | 11 USD)
-- Download the news picture and specify the file name in the Excel File (pictures stored in Pictures folder)
+- Download the news picture and specify the file name in the Excel File
   
 
