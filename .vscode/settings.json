@@ -1,0 +1,6 @@
+{
+    "python.analysis.extraPaths": [
+        "c:/Users/caio.guedes/RPA/Scripts/Python RPA/RPA Challenge/NY Times Challenge/."
+    ],
+    "python.terminal.activateEnvironment": false
+}

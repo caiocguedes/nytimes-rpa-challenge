@@ -1,4 +1,6 @@
 from openpyxl import Workbook
+from RPA.FileSystem import FileSystem
+from RPA.Excel.Files import Files
 import re
 import os
 
@@ -7,8 +9,10 @@ class RPADataProcessor:
        self.pictures_list = []
        self.worksheet = Workbook()
        self.active_worksheet = self.worksheet.active
-       self.worksheet_filepath = os.path.join(os.getcwd(), "rpa-challenge.xlsx")
-       self.pictures_path = os.path.join(os.getcwd(), 'pictures')
+       self.fs = FileSystem()
+       self.output_folder = os.path.join(os.getcwd(), "output")
+       self.worksheet_filepath = os.path.join(self.output_folder, "rpa-challenge.xlsx")
+       self.pictures_path = os.path.join(self.output_folder, "pictures")
 
     #creates worksheet
     def create_worksheet(self):
